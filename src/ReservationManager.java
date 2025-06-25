@@ -48,4 +48,7 @@ public class ReservationManager {
             System.out.println("Invalid Index!");
         }
     }
+    public ArrayList<Reservation> getReservations() {
+        return reservations;
+    }
 }

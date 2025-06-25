@@ -16,6 +16,7 @@ public class HotelApp {
         ReservationManager manager = new ReservationManager();
         //to control loop
         boolean running = true;
+        String input;
 
         //to start app loop
         while (running) {
@@ -28,28 +29,67 @@ public class HotelApp {
             System.out.println("5. Exit");
             System.out.println("Enter your option: ");
 
-            //to read user choice
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            //to read user choice (this block was updated after teacher feedback)fd
+            int choice = -1;
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+            } else {
+                System.out.println("Invalid input! Please enter a number between 1 and 5.");
+                scanner.nextLine(); // consume invalid input
+                continue; // skip to the next loop iteration
+            }
+
 
             switch (choice) {
                 case 1:
                     //to add reservation
-                    System.out.println("Enter guest name: ");
-                    String name = scanner.nextLine();
-
-                    System.out.println("Enter guest email: ");
-                    String email = scanner.nextLine();
-                    //to validate room number because there are only 18 rooms in the hotel
-                    int roomNumber;
+                    String name;
                     do {
-                        System.out.println("Enter room number (1-18 only): ");
-                        roomNumber = scanner.nextInt();
-                        if (roomNumber < 1 || roomNumber > 18) {
-                            System.out.println("Invalid room number");
+                        System.out.println("Enter guest name (letters and spaces only): ");
+                        name = scanner.nextLine().trim();
+
+                        if (!name.matches("[a-zA-Z\\s]+")) {
+                            System.out.println("Invalid name! Please use letters and spaces only.");
+                            name = null; // force retry
                         }
-                    } while (roomNumber < 1 || roomNumber > 18);
-                    scanner.nextLine();
+                    } while (name == null);
+
+
+                    //to add email address (updated allowing email format input only)d
+
+                    String email;
+                    do {
+                        System.out.println("Enter guest email (e.g., name@example.com): ");
+                        email = scanner.nextLine().trim();
+
+                        // Basic email pattern
+                        if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+                            System.out.println("Invalid email format! Try again.");
+                            email = null; // force retry
+                        }
+                    } while (email == null);
+
+                    //to validate room number because there are only 18 rooms in the hotel
+                    //(updated to allow only numbers between 1-18)
+                    int roomNumber = -1;
+                    while (true) {
+                        System.out.println("Enter room number (1-18 only): ");
+                        input = scanner.nextLine().trim();
+
+                        try {
+                            roomNumber = Integer.parseInt(input);
+                            if (roomNumber >= 1 && roomNumber <= 18) {
+                                break;
+                            } else {
+                                System.out.println("Room number must be between 1 and 18.");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input. Please enter a number.");
+                        }
+                    }
+
+
                     //to validate Room type, there are only two types City View (C) or Patio View (P)
                     String type;
                     do{
@@ -62,13 +102,23 @@ public class HotelApp {
                     //to set room type
                     String roomType = type.equals("C") ? "City View" : "Patio View";
 
-                    //System.out.println("Enter nightly rate: ");
-                    //double rate = scanner.nextDouble();
+
                     // Set nightly rate automatically based on room type
                     double rate = roomType.equals("City View") ? 90.0 : 70.0;
 
-                    System.out.println("Enter number of nights: ");
-                    int nights = scanner.nextInt();
+                    //to enter number of nights to stay
+                    int nights;
+                    while (true) {
+                        System.out.print("Enter number of nights: ");
+                        input = scanner.nextLine().trim();
+                        try {
+                            nights = Integer.parseInt(input);
+                            if (nights > 0) break;
+                            System.out.println("Must be at least 1 night.");
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input. Enter a whole number.");
+                        }
+                    }
 
                     //to create object based on input
                     Guest guest = new Guest(name, email);
@@ -85,61 +135,120 @@ public class HotelApp {
                     break;
 
                 case 3:
-                    //to update reservation
-                    System.out.println("Enter reservation index to update: ");
-                    int updateIndex = scanner.nextInt();
-                    scanner.nextLine();
-
-                    System.out.println("New guest name: ");
-                    String newName = scanner.nextLine();
-
-                    System.out.println("New guest email: ");
-                    String newEmail = scanner.nextLine();
-
-                    //to validate room number because there are only 18 rooms in the hotel
-                    int newRoomNumber;
-                    do {
-                        System.out.println("Enter room number (1-18 only): ");
-                        newRoomNumber = scanner.nextInt();
-                        if (newRoomNumber < 1 || newRoomNumber > 18) {
-                            System.out.println("Invalid room number");
+                    // Validate reservation index
+                    int updateIndex = -1;
+                    while (true) {
+                        System.out.print("Enter reservation index to update: ");
+                        String indexInput = scanner.nextLine();
+                        try {
+                            updateIndex = Integer.parseInt(indexInput);
+                            if (updateIndex >= 0 && updateIndex < manager.getReservations().size()) {
+                                break;
+                            } else {
+                                System.out.println("Invalid index! Please choose between 0 and " + (manager.getReservations().size() - 1));
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input. Please enter a valid number.");
                         }
-                    } while (newRoomNumber < 1 || newRoomNumber > 18);
-                    scanner.nextLine();
-                    //to validate Room type, there are only two types City View (C) or Patio View (P)
+                    }
+
+                    // Validate new guest name
+                    String newName;
+                    do {
+                        System.out.println("New guest name (letters and spaces only): ");
+                        newName = scanner.nextLine().trim();
+                        if (!newName.matches("[a-zA-Z\\s]+")) {
+                            System.out.println("Invalid name! Please use letters and spaces only.");
+                            newName = null;
+                        }
+                    } while (newName == null);
+
+                    // Validate new email
+                    String newEmail;
+                    do {
+                        System.out.println("New guest email (e.g., name@example.com): ");
+                        newEmail = scanner.nextLine().trim();
+                        if (!newEmail.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+                            System.out.println("Invalid email format! Try again.");
+                            newEmail = null;
+                        }
+                    } while (newEmail == null);
+
+                    // Validate new room number
+                    int newRoomNumber = -1;
+                    while (true) {
+                        System.out.print("Enter new room number (1–18): ");
+                        String roomInput = scanner.nextLine().trim();
+                        try {
+                            newRoomNumber = Integer.parseInt(roomInput);
+                            if (newRoomNumber >= 1 && newRoomNumber <= 18) {
+                                break;
+                            } else {
+                                System.out.println("Room number must be between 1 and 18.");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input. Please enter a number.");
+                        }
+                    }
+
+                    // Validate new room type
                     String newType;
-                    do{
+                    do {
                         System.out.println("Enter room type (C for City View or P for Patio View): ");
                         newType = scanner.nextLine().trim().toUpperCase();
-                        if (!newType.equals("C") && !newType.equals("P")){
-                            System.out.println("Invalid room type! Please enter C or P");
+                        if (!newType.equals("C") && !newType.equals("P")) {
+                            System.out.println("Invalid room type! Please enter C or P.");
                         }
                     } while (!newType.equals("C") && !newType.equals("P"));
-                    //to set room type
                     String newRoomType = newType.equals("C") ? "City View" : "Patio View";
 
-                    //System.out.println("New nightly rate: ");
-                    //double newRate = scanner.nextDouble();
-                    // Set nightly rate automatically based on room type
+                    // Set new rate automatically
                     double newRate = newRoomType.equals("City View") ? 90.0 : 70.0;
 
-                    System.out.println("Enter number of nights: ");
-                    int newNights = scanner.nextInt();
+                    // Validate new number of nights
+                    int newNights;
+                    while (true) {
+                        System.out.print("Enter number of nights: ");
+                        String nightInput = scanner.nextLine().trim();
+                        try {
+                            newNights = Integer.parseInt(nightInput);
+                            if (newNights > 0) break;
+                            System.out.println("Must be at least 1 night.");
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input. Enter a whole number.");
+                        }
+                    }
 
-                    //to created updated reservation
+                    // Create and apply updated reservation
                     Guest newGuest = new Guest(newName, newEmail);
                     Room newRoom = new Room(newRoomNumber, newRoomType, newRate);
                     Reservation newReservation = new Reservation(newGuest, newRoom, newNights);
-
-                    //to apply update
                     manager.updateReservation(updateIndex, newReservation);
+                    System.out.println("Reservation updated successfully.");
                     break;
 
+
                 case 4:
-                    //to remove reservation
-                    System.out.println("Enter reservation index to remove: ");
-                    int removeIndex = scanner.nextInt();
+                    // Validate reservation index to remove
+                    int removeIndex = -1;
+                    while (true) {
+                        System.out.print("Enter reservation index to remove: ");
+                        String removeInput = scanner.nextLine();
+                        try {
+                            removeIndex = Integer.parseInt(removeInput);
+                            if (removeIndex >= 0 && removeIndex < manager.getReservations().size()) {
+                                break;
+                            } else {
+                                System.out.println("Invalid index! Please choose between 0 and " + (manager.getReservations().size() - 1));
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid input. Please enter a valid number.");
+                        }
+                    }
+
+                    // Perform removal
                     manager.removeReservation(removeIndex);
+                    System.out.println("Reservation removed successfully.");
                     break;
 
                 case 5:
