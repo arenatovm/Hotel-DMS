@@ -1,4 +1,10 @@
-/* This class represents a hotel room and holds information about its
+/*
+Andres Vera
+CEN 3024 - Software Development I
+06/25/25
+Room.java
+
+This class represents a hotel room and holds information about its
 type and rate. It is used by the Reservation class to associate a room
 with a booking
 Note: the hotel only has 18 rooms

@@ -1,4 +1,10 @@
-/*This is the main class that simulates the Hotel DMS
+/*
+Andres Vera
+CEN 3024 - Software Development I
+06/25/25
+HotelApp.java
+
+This is the main class that simulates the Hotel DMS
 it allows the user to interact via the console with basic options:
 Add, List, Update, and Remove reservations.
 

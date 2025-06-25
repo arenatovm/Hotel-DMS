@@ -1,4 +1,10 @@
-/* This class allows adding, removing, updating and listing reservations.
+/*
+Andres Vera
+CEN 3024 - Software Development I
+06/25/25
+ReservationManager.java
+
+ This class allows adding, removing, updating and listing reservations.
 it handles storing and managing reservations
 
  */

@@ -1,4 +1,10 @@
-/* This class represents a hotel guest and stores their information that
+/*
+Andres Vera
+CEN 3024 - Software Development I
+06/25/25
+Guest.java
+
+This class represents a hotel guest and stores their information that
 will be used as part of a reservation.
 Input: name and email of the guest.
  */

@@ -1,4 +1,10 @@
-/* This class links a guest with a room and reservation dates. It calculates
+/*
+Andres Vera
+CEN 3024 - Software Development I
+06/25/25
+Reservation.java
+
+This class links a guest with a room and reservation dates. It calculates
 the total cost and stores all booking details.
 
 Input: guest making the reservation, the room being reserved and the
