@@ -6,7 +6,7 @@ HotelApp.java
 
 This is the main class that simulates the Hotel DMS
 it allows the user to interact via the console with basic options:
-Add, List, Update, and Remove reservations.
+Add, List, Update, Remove reservations, Load a file, and Search a reservation by name.
 
 Input: User inputs guest name/email, room info, etc
 Output: Menu display and printed confirmations or errors

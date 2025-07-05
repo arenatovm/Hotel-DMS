@@ -11,6 +11,7 @@ it handles storing and managing reservations
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ReservationManager {
@@ -90,9 +91,12 @@ public class ReservationManager {
             }
 
             System.out.println("File loaded successfully.");
+        } catch (IOException e) {
+            System.out.println("Error: File not found or cannot be opened.");
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Invalid data format in file.");
         } catch (Exception e) {
-            System.out.println("Error reading file: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 
