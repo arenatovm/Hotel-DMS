@@ -5,7 +5,7 @@ CEN 3024 - Software Development I
 ReservationManagerTest.java
 
 This class tests the functionality of the ReservationManager class,
-including adding, removing, updating, and retrieving reservations.
+including adding, removing, updating, retrieving reservations, search reservation by name, and load file.
 */
 
 import org.junit.jupiter.api.BeforeEach;
@@ -66,4 +66,52 @@ class ReservationManagerTest {
         assertNotNull(list);
         assertEquals(1, list.size());
     }
+
+    @Test
+    void searchReservationsByGuestName_found() {
+        // Redirect console output to capture search result
+        java.io.ByteArrayOutputStream outContent = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(outContent));
+
+        // Add two sample reservations
+        manager.addReservation(reservation);  // Andres
+        manager.addReservation(new Reservation(
+                new Guest("Maria", "maria@gmail.com"),
+                new Room(6, "City View", 100.0),
+                2
+        ));
+
+        manager.searchReservationsByGuestName("Andres");
+
+        String output = outContent.toString();
+        assertTrue(output.contains("Andres"));
+
+        // Restore normal output
+        System.setOut(System.out);
+    }
+
+    @Test
+    void searchReservationsByGuestName_notFound() {
+        java.io.ByteArrayOutputStream outContent = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(outContent));
+
+        // Add sample reservation
+        manager.addReservation(reservation);
+
+        manager.searchReservationsByGuestName("Kurt");
+
+        String output = outContent.toString();
+        assertTrue(output.contains("No reservations found for guest: Kurt"));
+
+        System.setOut(System.out);
+    }
+
+    @Test
+    void loadFromFile_addsReservations() {
+        manager.loadFromFile("sample_data.txt"); // this file must exist in your project folder
+        assertFalse(manager.getReservations().isEmpty());
+        assertEquals("Andres", manager.getReservations().get(0).getGuest().getName());
+    }
+
+
 }
