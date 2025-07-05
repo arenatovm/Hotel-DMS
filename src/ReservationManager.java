@@ -96,6 +96,21 @@ public class ReservationManager {
         }
     }
 
+    //new block, a custom action. To search a reservation by guest name
+    public void searchReservationsByGuestName(String name) {
+        boolean found = false;
+        for (int i = 0; i < reservations.size(); i++) {
+            //o find a partial name
+            if (reservations.get(i).getGuest().getName().toLowerCase().contains(name.toLowerCase())) {
+                System.out.println(i + ": " + reservations.get(i));
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No reservations found for guest: " + name);
+        }
+    }
+
     public ArrayList<Reservation> getReservations() {
         return reservations;
     }

@@ -33,7 +33,8 @@ public class HotelApp {
             System.out.println("3. Update Reservation");
             System.out.println("4. Remove Reservation");
             System.out.println("5. Load File");
-            System.out.println("6. Exit");
+            System.out.println("6. Search Reservation by Guest Name");
+            System.out.println("7. Exit");
             System.out.println("Enter your option: ");
 
             //to read user choice (this block was updated after teacher feedback)fd
@@ -267,7 +268,13 @@ public class HotelApp {
                     manager.listReservations();
                     break;
 
+                //new case block for a custom action. to search a reservation by a guest name
                 case 6:
+                    System.out.print("Enter guest name to search: ");
+                    String searchName = scanner.nextLine().trim();
+                    manager.searchReservationsByGuestName(searchName);
+                    break;
+                case 7:
                     //exit
                     running = false;
                     System.out.println("Goodbye!");
