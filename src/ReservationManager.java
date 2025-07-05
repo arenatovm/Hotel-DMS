@@ -9,6 +9,8 @@ it handles storing and managing reservations
 
  */
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 
 public class ReservationManager {
@@ -54,6 +56,46 @@ public class ReservationManager {
             System.out.println("Invalid Index!");
         }
     }
+
+    //this is a new block so user can load a file
+    public void loadFromFile(String filename) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            int lineNumber = 0;
+
+            while ((line = br.readLine()) != null) {
+                lineNumber++;
+                System.out.println("Reading line " + lineNumber + ": " + line); // debug
+
+                String[] parts = line.split(","); // split on comma
+                if (parts.length != 5) {
+                    System.out.println("Invalid line format at line " + lineNumber + ": " + line);
+                    continue;
+                }
+                //to trim info from file, so blank spaces don't affect the file format
+                String name = parts[0].trim();
+                String email = parts[1].trim();
+                int roomNumber = Integer.parseInt(parts[2].trim());
+                String roomType = parts[3].trim(); // "City View" or "Patio View"
+                int nights = Integer.parseInt(parts[4].trim());
+
+                // Assign room rate based on type
+                double rate = roomType.equalsIgnoreCase("City View") ? 90.0 : 70.0;
+
+                Guest guest = new Guest(name, email);
+                Room room = new Room(roomNumber, roomType, rate);
+                Reservation reservation = new Reservation(guest, room, nights);
+
+                addReservation(reservation);
+            }
+
+            System.out.println("File loaded successfully.");
+        } catch (Exception e) {
+            System.out.println("Error reading file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public ArrayList<Reservation> getReservations() {
         return reservations;
     }

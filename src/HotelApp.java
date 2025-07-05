@@ -32,7 +32,8 @@ public class HotelApp {
             System.out.println("2. List Reservations");
             System.out.println("3. Update Reservation");
             System.out.println("4. Remove Reservation");
-            System.out.println("5. Exit");
+            System.out.println("5. Load File");
+            System.out.println("6. Exit");
             System.out.println("Enter your option: ");
 
             //to read user choice (this block was updated after teacher feedback)fd
@@ -257,7 +258,16 @@ public class HotelApp {
                     System.out.println("Reservation removed successfully.");
                     break;
 
+                //new block to load files
                 case 5:
+                    System.out.println("Enter the file path to load reservations:");
+                    String filePath = scanner.nextLine().trim();
+                    manager.loadFromFile(filePath);
+                    //to show loaded reservations after loading
+                    manager.listReservations();
+                    break;
+
+                case 6:
                     //exit
                     running = false;
                     System.out.println("Goodbye!");
