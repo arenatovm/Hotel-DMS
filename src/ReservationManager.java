@@ -4,7 +4,7 @@ CEN 3024 - Software Development I
 06/25/25
 ReservationManager.java
 
- This class allows adding, removing, updating and listing reservations.
+ This class allows adding, removing, updating, listing reservations, search a reservatioin by name, and load a file.
 it handles storing and managing reservations
 
  */
