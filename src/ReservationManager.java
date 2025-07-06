@@ -4,7 +4,7 @@ CEN 3024 - Software Development I
 06/25/25
 ReservationManager.java
 
- This class allows adding, removing, updating, listing reservations, search a reservatioin by name, and load a file.
+ This class allows adding, removing, updating, listing reservations, search a reservation by name, and load a file.
 it handles storing and managing reservations
 
  */
@@ -57,48 +57,41 @@ public class ReservationManager {
             System.out.println("Invalid Index!");
         }
     }
+    //to load a file
+    public void loadFromFile(String filename) throws IOException {
+        // throws FileNotFoundException if file doesn't exist
+        FileReader fr = new FileReader(filename);
+        BufferedReader br = new BufferedReader(fr);
+        String line;
+        int lineNumber = 0;
+        // clear existing data if needed
+        reservations.clear();
 
-    //this is a new block so user can load a file
-    public void loadFromFile(String filename) {
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            int lineNumber = 0;
-
-            while ((line = br.readLine()) != null) {
-                lineNumber++;
-                System.out.println("Reading line " + lineNumber + ": " + line); // debug
-
-                String[] parts = line.split(","); // split on comma
-                if (parts.length != 5) {
-                    System.out.println("Invalid line format at line " + lineNumber + ": " + line);
-                    continue;
-                }
-                //to trim info from file, so blank spaces don't affect the file format
-                String name = parts[0].trim();
-                String email = parts[1].trim();
-                int roomNumber = Integer.parseInt(parts[2].trim());
-                String roomType = parts[3].trim(); // "City View" or "Patio View"
-                int nights = Integer.parseInt(parts[4].trim());
-
-                // Assign room rate based on type
-                double rate = roomType.equalsIgnoreCase("City View") ? 90.0 : 70.0;
-
-                Guest guest = new Guest(name, email);
-                Room room = new Room(roomNumber, roomType, rate);
-                Reservation reservation = new Reservation(guest, room, nights);
-
-                addReservation(reservation);
+        while ((line = br.readLine()) != null) {
+            lineNumber++;
+            String[] parts = line.split(",");
+            if (parts.length != 5) {
+                throw new IOException("Invalid format at line " + lineNumber + ": " + line);
             }
 
-            System.out.println("File loaded successfully.");
-        } catch (IOException e) {
-            System.out.println("Error: File not found or cannot be opened.");
-        } catch (NumberFormatException e) {
-            System.out.println("Error: Invalid data format in file.");
-        } catch (Exception e) {
-            System.out.println("An unexpected error occurred: " + e.getMessage());
+            String name = parts[0].trim();
+            String email = parts[1].trim();
+            int roomNumber = Integer.parseInt(parts[2].trim());
+            String roomType = parts[3].trim();
+            int nights = Integer.parseInt(parts[4].trim());
+
+            double rate = roomType.equalsIgnoreCase("City View") ? 90.0 : 70.0;
+
+            Guest guest = new Guest(name, email);
+            Room room = new Room(roomNumber, roomType, rate);
+            Reservation reservation = new Reservation(guest, room, nights);
+
+            addReservation(reservation);
         }
+
+        br.close();
     }
+
 
     //new block, a custom action. To search a reservation by guest name
     public void searchReservationsByGuestName(String name) {
@@ -114,6 +107,7 @@ public class ReservationManager {
             System.out.println("No reservations found for guest: " + name);
         }
     }
+
 
     public ArrayList<Reservation> getReservations() {
         return reservations;
