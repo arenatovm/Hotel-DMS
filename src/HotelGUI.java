@@ -236,15 +236,18 @@ public class HotelGUI extends JFrame {
 
                 // Prompt for new guest name
                 String name = JOptionPane.showInputDialog(this, "Enter new guest name:");
-                if (name == null || name.trim().isEmpty()) {
-                    throw new IllegalArgumentException("Name cannot be empty.");
+                // Validate name: not empty, only letters and spaces
+                if (!name.matches("^[A-Za-z ]+$")) {
+                    throw new IllegalArgumentException("Name must only contain letters and spaces.");
                 }
+
 
                 // Prompt for new guest email
                 String email = JOptionPane.showInputDialog(this, "Enter new guest email:");
-                if (email == null || email.trim().isEmpty()) {
-                    throw new IllegalArgumentException("Email cannot be empty.");
+                if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
+                    throw new IllegalArgumentException("Invalid email format.");
                 }
+
 
                 // Prompt for new room number (must be between 1 and 18)
                 String roomNumberStr = JOptionPane.showInputDialog(this, "Enter new room number (1–18):");
