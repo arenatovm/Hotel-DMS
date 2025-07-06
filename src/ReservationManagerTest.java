@@ -11,6 +11,8 @@ including adding, removing, updating, retrieving reservations, search reservatio
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 class ReservationManagerTest {
@@ -107,7 +109,7 @@ class ReservationManagerTest {
     }
 
     @Test
-    void loadFromFile_addsReservations() {
+    void loadFromFile_addsReservations() throws IOException {
         manager.loadFromFile("sample_data.txt"); // this file must exist in your project folder
         assertFalse(manager.getReservations().isEmpty());
         assertEquals("Andres", manager.getReservations().get(0).getGuest().getName());
