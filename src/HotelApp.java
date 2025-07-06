@@ -6,12 +6,13 @@ HotelApp.java
 
 This is the main class that simulates the Hotel DMS
 it allows the user to interact via the console with basic options:
-Add, List, Update, Remove reservations, Load a file, and Search a reservation by name.
+Add, List, Update, Remove reservations, load a file, and Search a reservation by name.
 
 Input: User inputs guest name/email, room info, etc
 Output: Menu display and printed confirmations or errors
  */
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class HotelApp {
@@ -43,7 +44,7 @@ public class HotelApp {
                 choice = scanner.nextInt();
                 scanner.nextLine(); // consume newline
             } else {
-                System.out.println("Invalid input! Please enter a number between 1 and 5.");
+                System.out.println("Invalid input! Please enter a number between 1 and 6.");
                 scanner.nextLine(); // consume invalid input
                 continue; // skip to the next loop iteration
             }
@@ -258,14 +259,19 @@ public class HotelApp {
                     manager.removeReservation(removeIndex);
                     System.out.println("Reservation removed successfully.");
                     break;
-
-                //new block to load files
+                //case block to load a file
                 case 5:
                     System.out.println("Enter the file path to load reservations:");
                     String filePath = scanner.nextLine().trim();
-                    manager.loadFromFile(filePath);
-                    //to show loaded reservations after loading
-                    manager.listReservations();
+
+                    try {
+                        manager.loadFromFile(filePath); // Attempt to load the file
+                        System.out.println("File loaded successfully."); // Confirmation
+                        manager.listReservations(); // Optional: Show loaded reservations
+                    } catch (IOException e) {
+                        System.out.println("Error loading file: " + e.getMessage()); // Show error
+                    }
+
                     break;
 
                 //new case block for a custom action. to search a reservation by a guest name
@@ -274,11 +280,14 @@ public class HotelApp {
                     String searchName = scanner.nextLine().trim();
                     manager.searchReservationsByGuestName(searchName);
                     break;
+
                 case 7:
                     //exit
                     running = false;
                     System.out.println("Goodbye!");
                     break;
+
+
 
                 default:
                     System.out.println("Invalid option! Try again please.");
