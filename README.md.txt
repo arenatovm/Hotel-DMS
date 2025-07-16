@@ -17,6 +17,20 @@ This is a Hotel Data Management System created for my Software Development cours
 4. All validation is handled through the interface.
 5. Make sure you have sqlite-jdbc in the classpath if using a different IDE.
 
+## How to Recreate the Database from `hotel_export.sql`
+
+If you don't have the `hotel.db` file, you can generate it using the `hotel_export.sql`.
+
+### Requirements
+- SQLite installed (or `sqlite3.exe` present in your project folder)
+
+### Steps (Windows):
+
+Open **Command Prompt** and navigate to the folder where `sqlite3.exe` and `hotel_export.sql` are located:
+
+   ```bash
+   cd "C:\path\to\your\project\folder"
+
 ## Author
 Andres Vera  
 CEN 3024 - Summer 2025
