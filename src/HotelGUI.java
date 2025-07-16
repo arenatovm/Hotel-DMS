@@ -1,343 +1,294 @@
 /*
 Andres Vera
 CEN 3024 - Software Development I
-07/05/25
+07/15/25
 HotelGUI.java
 
-This class provides a GUI for the Hotel DMS. It allows users to
-interact with the guest bookings using buttons and input fields, it
-will also allow all CRUD operations, load file, and the custom action of searching
-a reservation by a name.
- */
+This class provides a GUI for the Hotel DMS. It allows users to connect to a SQLite database,
+interact with the guest bookings using buttons and input fields, and perform all CRUD operations
+plus a custom search by name. Data is stored in a database, not in memory.
+*/
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class HotelGUI extends JFrame {
-    private ReservationManager manager;
+    private DatabaseManager dbManager;
     private JTextArea displayArea;
 
-
+    // Constructor for the GUI
     public HotelGUI() {
-        //initialize manger
-        manager = new ReservationManager();
-        //Set Title and settings
-        setTitle("Hotel DMS GUI");
-        setSize(700, 500);
+        // Initialize the database manager
+        dbManager = new DatabaseManager();
+        // Set title of the window
+        setTitle("Hotel DMS GUI - Database Edition");
+        // Set initial size
+        setSize(800, 600);
+        // Exit the app when closed
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Center the window on screen
         setLocationRelativeTo(null);
-        //main layout
+        // Use BorderLayout
         setLayout(new BorderLayout());
-        //Menu with buttons
-        JPanel topPanel = new JPanel(new GridLayout(2, 4, 10, 10));
-        JButton loadFileButton = new JButton("Load File");
-        JButton listButton = new JButton("List Reservations");
-        JButton createButton = new JButton("Create Reservation");
-        JButton updateButton = new JButton("Update Reservation");
-        JButton removeButton = new JButton("Remove Reservation");
-        JButton searchButton = new JButton("Search by Name");
-        JButton clearButton = new JButton("Clear");
-        JButton exitButton = new JButton("Exit");
-        //adding colors to clear button
-        clearButton.setBackground(Color.GREEN);
-        clearButton.setForeground(Color.WHITE); // optional, to make text readable
-        //adding color red to exit button
-        exitButton.setBackground(Color.RED);
-        exitButton.setForeground(Color.WHITE); // optional, to make text readable
 
-        //adding buttons to the panel
-        topPanel.add(loadFileButton);
-        topPanel.add(listButton);
-        topPanel.add(createButton);
+        // Create text area for displaying messages and query results
+        displayArea = new JTextArea();
+        displayArea.setEditable(false);               // Make output non-editable
+        JScrollPane scrollPane = new JScrollPane(displayArea); // Make it scrollable
+        add(scrollPane, BorderLayout.CENTER);         // Add to center of layout
+
+        // Buttons panel
+        JPanel topPanel = new JPanel(new GridLayout(2, 5, 10, 10));
+
+        // Connect to Database
+        JButton connectDatabaseButton = new JButton("Connect DB");
+        connectDatabaseButton.addActionListener(e -> {
+            // Open file chooser
+            JFileChooser fileChooser = new JFileChooser();
+            // Wait for user to choose
+            int option = fileChooser.showOpenDialog(this);
+            // If a file was selected
+            if (option == JFileChooser.APPROVE_OPTION) {
+                // Get path
+                String path = fileChooser.getSelectedFile().getAbsolutePath();
+                // Set DB path
+                dbManager.setDatabasePath(path);
+                displayArea.setText("Connected to database: " + path);
+            }
+        });
+
+        // View All Reservations
+        JButton viewButton = new JButton("View All");
+        viewButton.addActionListener(e -> {
+            if (!dbManager.isConnected()) {
+                displayArea.setText("Please connect to a database first.");
+                return;
+            }
+            // Fetch all
+            ArrayList<String> reservations = dbManager.getAllReservations();
+            // Clear display
+            displayArea.setText("");
+            for (String res : reservations) {
+                // Show each
+                displayArea.append(res + "\n\n");
+            }
+        });
+
+        // Add Reservation
+        JButton addButton = new JButton("Add");
+        addButton.addActionListener(e -> {
+            if (!dbManager.isConnected()) {
+                displayArea.setText("Please connect to a database first.");
+                return;
+            }
+            JTextField nameField = new JTextField();
+            JTextField emailField = new JTextField();
+            JTextField roomField = new JTextField();
+            String[] roomTypes = {"Patio View", "City View"};
+            JComboBox<String> typeBox = new JComboBox<>(roomTypes);
+            JTextField rateField = new JTextField();
+            rateField.setEditable(false); // Auto-filled
+            JTextField checkInField = new JTextField("yyyy-MM-dd");
+            JTextField checkOutField = new JTextField("yyyy-MM-dd");
+
+            // Auto-fill rate based on room type
+            typeBox.addActionListener(a -> {
+                String selected = (String) typeBox.getSelectedItem();
+                if (selected.equals("Patio View")) {
+                    rateField.setText("70.0");
+                } else {
+                    rateField.setText("90.0");
+                }
+            });
+
+            Object[] fields = {
+                    "Guest Name:", nameField,
+                    "Guest Email:", emailField,
+                    "Room Number (1-18):", roomField,
+                    "Room Type:", typeBox,
+                    "Rate (auto):", rateField,
+                    "Check-In Date (yyyy-MM-dd):", checkInField,
+                    "Check-Out Date (yyyy-MM-dd):", checkOutField
+            };
+
+            int result = JOptionPane.showConfirmDialog(this, fields, "Add Reservation", JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.OK_OPTION) {
+                try {
+                    // Validate name (no digits)
+                    String name = nameField.getText().trim();
+                    if (!name.matches("[a-zA-Z ]+")) throw new IllegalArgumentException("Name must contain only letters and spaces.");
+
+                    // Validate email
+                    String email = emailField.getText().trim();
+                    if (!email.matches("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$")) throw new IllegalArgumentException("Invalid email format.");
+
+                    // Validate room number
+                    int room = Integer.parseInt(roomField.getText().trim());
+                    if (room < 1 || room > 18) throw new IllegalArgumentException("Room number must be between 1 and 18.");
+
+                    // Room type and rate
+                    String type = (String) typeBox.getSelectedItem();
+                    double rate = Double.parseDouble(rateField.getText());
+
+                    // Dates
+                    String checkIn = checkInField.getText().trim();
+                    String checkOut = checkOutField.getText().trim();
+                    java.time.LocalDate inDate = java.time.LocalDate.parse(checkIn);
+                    java.time.LocalDate outDate = java.time.LocalDate.parse(checkOut);
+                    if (!outDate.isAfter(inDate)) throw new IllegalArgumentException("Check-out must be after check-in.");
+
+                    int nights = (int) java.time.temporal.ChronoUnit.DAYS.between(inDate, outDate);
+
+                    dbManager.addReservation(name, email, room, type, rate, nights, checkIn, checkOut);
+                    displayArea.setText("Reservation added successfully!");
+
+                } catch (Exception ex) {
+                    displayArea.setText("Error: " + ex.getMessage());
+                }
+            }
+        });
+
+        // Delete Reservation by ID
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(e -> {
+            if (!dbManager.isConnected()) {
+                displayArea.setText("Please connect to a database first.");
+                return;
+            }
+            String input = JOptionPane.showInputDialog(this, "Enter Reservation ID to delete:");
+            try {
+                int id = Integer.parseInt(input);                     // Convert to int
+                boolean success = dbManager.deleteReservation(id);    // Try to delete
+                displayArea.setText(success ? "Reservation deleted!" : "ID not found.");
+            } catch (Exception ex) {
+                displayArea.setText("Invalid ID.");                   // Input error
+            }
+        });
+
+        // Update Reservation by ID
+        JButton updateButton = new JButton("Update");
+        updateButton.addActionListener(e -> {
+            if (!dbManager.isConnected()) {
+                displayArea.setText("Please connect to a database first.");
+                return;
+            }
+            String input = JOptionPane.showInputDialog(this, "Enter Reservation ID to update:");
+            try {
+                int id = Integer.parseInt(input);
+
+                JTextField nameField = new JTextField();
+                JTextField emailField = new JTextField();
+                JTextField roomField = new JTextField();
+                String[] roomTypes = {"Patio View", "City View"};
+                JComboBox<String> typeBox = new JComboBox<>(roomTypes);
+                JTextField rateField = new JTextField();
+                rateField.setEditable(false); // Auto-filled
+                JTextField checkInField = new JTextField("yyyy-MM-dd");
+                JTextField checkOutField = new JTextField("yyyy-MM-dd");
+
+                // Auto-fill rate based on room type
+                typeBox.addActionListener(a -> {
+                    String selected = (String) typeBox.getSelectedItem();
+                    if (selected.equals("Patio View")) {
+                        rateField.setText("70.0");
+                    } else {
+                        rateField.setText("90.0");
+                    }
+                });
+
+                Object[] fields = {
+                        "Guest Name:", nameField,
+                        "Guest Email:", emailField,
+                        "Room Number (1-18):", roomField,
+                        "Room Type:", typeBox,
+                        "Rate (auto):", rateField,
+                        "Check-In Date (yyyy-MM-dd):", checkInField,
+                        "Check-Out Date (yyyy-MM-dd):", checkOutField
+                };
+
+                int result = JOptionPane.showConfirmDialog(this, fields, "Update Reservation", JOptionPane.OK_CANCEL_OPTION);
+                if (result == JOptionPane.OK_OPTION) {
+                    try {
+                        String name = nameField.getText().trim();
+                        if (!name.matches("[a-zA-Z ]+")) throw new IllegalArgumentException("Name must contain only letters and spaces.");
+
+                        String email = emailField.getText().trim();
+                        if (!email.matches("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$")) throw new IllegalArgumentException("Invalid email format.");
+
+                        int room = Integer.parseInt(roomField.getText().trim());
+                        if (room < 1 || room > 18) throw new IllegalArgumentException("Room number must be between 1 and 18.");
+
+                        String type = (String) typeBox.getSelectedItem();
+                        double rate = Double.parseDouble(rateField.getText());
+
+                        String checkIn = checkInField.getText().trim();
+                        String checkOut = checkOutField.getText().trim();
+                        java.time.LocalDate inDate = java.time.LocalDate.parse(checkIn);
+                        java.time.LocalDate outDate = java.time.LocalDate.parse(checkOut);
+                        if (!outDate.isAfter(inDate)) throw new IllegalArgumentException("Check-out must be after check-in.");
+
+                        int nights = (int) java.time.temporal.ChronoUnit.DAYS.between(inDate, outDate);
+
+                        boolean success = dbManager.updateReservation(id, name, email, room, type, rate, nights, checkIn, checkOut);
+                        displayArea.setText(success ? "Reservation updated!" : "Update failed. Check ID.");
+                    } catch (Exception ex) {
+                        displayArea.setText("Error: " + ex.getMessage());
+                    }
+                }
+
+            } catch (NumberFormatException ex) {
+                displayArea.setText("Invalid ID.");
+            }
+        });
+
+        // Search by Guest Name
+        JButton searchButton = new JButton("Search Name");
+        searchButton.addActionListener(e -> {
+            if (!dbManager.isConnected()) {
+                displayArea.setText("Please connect to a database first.");
+                return;
+            }
+            String name = JOptionPane.showInputDialog(this, "Enter guest name to search:");
+            ArrayList<String> results = dbManager.searchReservationsByName(name);
+            displayArea.setText("");
+            for (String res : results) {
+                displayArea.append(res + "\n\n");
+            }
+            if (results.isEmpty()) {
+                displayArea.setText("No results found.");
+            }
+        });
+
+        // Clear Output (Green Button)
+        JButton clearButton = new JButton("Clear");
+        clearButton.setBackground(Color.GREEN);
+        clearButton.setForeground(Color.BLACK);
+        clearButton.addActionListener(e -> displayArea.setText(""));
+
+        // Exit Application (Red Button)
+        JButton exitButton = new JButton("Exit");
+        exitButton.setBackground(Color.RED);
+        exitButton.setForeground(Color.WHITE);
+        exitButton.addActionListener(e -> System.exit(0));
+
+        // Add all buttons to the panel
+        topPanel.add(connectDatabaseButton);
+        topPanel.add(viewButton);
+        topPanel.add(addButton);
+        topPanel.add(deleteButton);
         topPanel.add(updateButton);
-        topPanel.add(removeButton);
         topPanel.add(searchButton);
         topPanel.add(clearButton);
         topPanel.add(exitButton);
 
-        //Area to display results
-        displayArea = new JTextArea();
-        displayArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(displayArea);
+        add(topPanel, BorderLayout.NORTH); // Add button panel to the top
 
-        // Add components to frame
-        add(topPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-
-        //Functionality buttons
-        exitButton.addActionListener(e -> System.exit(0));
-        clearButton.addActionListener(e -> displayArea.setText(""));
-
-        //button to load a file
-        loadFileButton.addActionListener(e -> {
-            // Prompt user to enter the file name
-            String filename = JOptionPane.showInputDialog(this, "Enter file name (e.g., sample_data.txt):");
-
-            if (filename != null && !filename.trim().isEmpty()) {
-                try {
-                    // Attempt to load the file
-                    manager.loadFromFile(filename.trim());
-                    displayArea.append("File loaded successfully.\n");
-                } catch (Exception ex) {
-                    // Display error in the GUI instead of crashing
-                    displayArea.append("Error reading file: " + ex.getMessage() + "\n");
-                }
-            } else {
-                displayArea.append("No file name provided.\n");
-            }
-        });
-
-        //list reservations buttons
-        listButton.addActionListener(e -> {
-            displayArea.setText(""); // clear previous results
-
-            if (manager.getReservations().isEmpty()) {
-                displayArea.append("No reservations found.\n");
-            } else {
-                for (int i = 0; i < manager.getReservations().size(); i++) {
-                    displayArea.append(i + ": " + manager.getReservations().get(i).toString() + "\n");
-                }
-            }
-        });
-
-        //create/manual input button
-        createButton.addActionListener(e -> {
-            try {
-                // Ask for guest name and validate it (must include at least one letter, only letters and spaces)
-                String name;
-                do {
-                    name = JOptionPane.showInputDialog(this, "Enter guest name:");
-                    if (name == null) return; // User cancelled
-
-                    name = name.trim(); // Remove leading/trailing spaces
-
-                    if (!name.matches(".*[a-zA-Z]+.*")) {
-                        JOptionPane.showMessageDialog(this, "Invalid name. It must contain letters only and not be empty.");
-                        name = null;
-                    }
-                } while (name == null);
-
-
-                // Ask for guest email and validate it (simple email format)
-                String email;
-                do {
-                    email = JOptionPane.showInputDialog(this, "Enter guest email:");
-                    if (email == null) return;
-                    if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-                        JOptionPane.showMessageDialog(this, "Invalid email format.");
-                        email = null;
-                    }
-                } while (email == null);
-
-
-                // Prompt user to enter the room number (as a string)
-                String roomNumStr = JOptionPane.showInputDialog(this, "Enter room number:");
-                int roomNumber = Integer.parseInt(roomNumStr.trim());  // Convert to integer
-
-                // Provide the user with a dropdown menu to select room type
-                String[] roomTypes = {"City View", "Patio View"};
-                String roomType = (String) JOptionPane.showInputDialog(
-                        this,                       // Parent component
-                        "Select room type:",        // Message
-                        "Room Type",                // Dialog title
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,                       // Icon (none)
-                        roomTypes,                  // Choices
-                        roomTypes[0]                // Default selection
-                );
-                if (roomType == null)
-                    throw new IllegalArgumentException("Room type is required.");
-
-                // Prompt user to enter the number of nights
-                String nightsStr = JOptionPane.showInputDialog(this, "Enter number of nights:");
-                int nights = Integer.parseInt(nightsStr.trim());  // Convert to integer
-
-                // Determine the room rate based on selected room type
-                double rate = roomType.equalsIgnoreCase("City View") ? 90.0 : 70.0;
-
-                // Create Guest, Room, and Reservation objects using user input
-                Guest guest = new Guest(name, email);
-                Room room = new Room(roomNumber, roomType, rate);
-                Reservation reservation = new Reservation(guest, room, nights);
-
-                // Add the new reservation to the ReservationManager
-                manager.addReservation(reservation);
-
-                // Display confirmation of the reservation in the text area
-                displayArea.append("Reservation created:\n" + reservation + "\n");
-
-            } catch (NumberFormatException nfe) {
-                // Catches errors when room number or nights are not valid numbers
-                displayArea.append("Error: Room number and nights must be numeric.\n");
-            } catch (IllegalArgumentException iae) {
-                // Catches custom errors when required fields are left blank
-                displayArea.append("Error: " + iae.getMessage() + "\n");
-            } catch (Exception ex) {
-                // Catches any unexpected errors and displays them
-                displayArea.append("Unexpected error: " + ex.getMessage() + "\n");
-            }
-        });
-
-        //remove reservation form list button
-        removeButton.addActionListener(e -> {
-            try {
-                // Prompt the user to enter the index (position) of the reservation to remove
-                String indexStr = JOptionPane.showInputDialog(this, "Enter the reservation index to remove:");
-
-                // Check if the user canceled or entered nothing
-                if (indexStr == null || indexStr.trim().isEmpty()) {
-                    throw new IllegalArgumentException("Reservation index is required.");
-                }
-
-                // Convert the entered string to an integer
-                int index = Integer.parseInt(indexStr.trim());
-
-                // Check if the index is within the range of the reservation list
-                if (index < 0 || index >= manager.getReservations().size()) {
-                    throw new IndexOutOfBoundsException("Invalid reservation index.");
-                }
-
-                // Get the reservation to be removed (to show a message with its info)
-                Reservation removed = manager.getReservations().get(index);
-
-                // Remove the reservation from the manager
-                manager.removeReservation(index);
-
-                // Confirm to the user that the reservation was removed
-                displayArea.append("Reservation removed:\n" + removed + "\n");
-
-            } catch (NumberFormatException nfe) {
-                // If the user entered something that isn't a number
-                displayArea.append("Error: Please enter a valid number for the reservation index.\n");
-            } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
-                // For missing input or invalid index
-                displayArea.append("Error: " + ex.getMessage() + "\n");
-            } catch (Exception ex) {
-                // Catch-all for unexpected issues
-                displayArea.append("Unexpected error: " + ex.getMessage() + "\n");
-            }
-        });
-
-        //update reservation button
-        updateButton.addActionListener(e -> {
-            try {
-                // Ask user which reservation they want to update by index
-                String indexStr = JOptionPane.showInputDialog(this, "Enter the index of the reservation to update:");
-                if (indexStr == null || indexStr.trim().isEmpty()) {
-                    throw new IllegalArgumentException("Reservation index is required.");
-                }
-
-                int index = Integer.parseInt(indexStr.trim());
-
-                // Validate the index is within bounds
-                if (index < 0 || index >= manager.getReservations().size()) {
-                    throw new IndexOutOfBoundsException("Invalid reservation index.");
-                }
-
-                // Prompt for new guest name
-                String name = JOptionPane.showInputDialog(this, "Enter new guest name:");
-                // Validate name: not empty, only letters and spaces
-                if (!name.matches("^[A-Za-z ]+$")) {
-                    throw new IllegalArgumentException("Name must only contain letters and spaces.");
-                }
-
-
-                // Prompt for new guest email
-                String email = JOptionPane.showInputDialog(this, "Enter new guest email:");
-                if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
-                    throw new IllegalArgumentException("Invalid email format.");
-                }
-
-
-                // Prompt for new room number (must be between 1 and 18)
-                String roomNumberStr = JOptionPane.showInputDialog(this, "Enter new room number (1–18):");
-                int roomNumber = Integer.parseInt(roomNumberStr.trim());
-                if (roomNumber < 1 || roomNumber > 18) {
-                    throw new IllegalArgumentException("Room number must be between 1 and 18.");
-                }
-
-                // Prompt for room type (C for City View, P for Patio View)
-                String type = JOptionPane.showInputDialog(this, "Enter room type (C for City View, P for Patio View):");
-                if (type == null || (!type.equalsIgnoreCase("C") && !type.equalsIgnoreCase("P"))) {
-                    throw new IllegalArgumentException("Invalid room type. Enter C or P.");
-                }
-
-                String roomType = type.equalsIgnoreCase("C") ? "City View" : "Patio View";
-                double rate = roomType.equals("City View") ? 90.0 : 70.0;
-
-                // Prompt for number of nights
-                String nightsStr = JOptionPane.showInputDialog(this, "Enter number of nights:");
-                int nights = Integer.parseInt(nightsStr.trim());
-                if (nights <= 0) {
-                    throw new IllegalArgumentException("Number of nights must be at least 1.");
-                }
-
-                // Create new reservation and update it at the given index
-                Guest guest = new Guest(name, email);
-                Room room = new Room(roomNumber, roomType, rate);
-                Reservation newReservation = new Reservation(guest, room, nights);
-
-                manager.updateReservation(index, newReservation);
-
-                // Confirm update to user
-                displayArea.append("Reservation updated successfully:\n" + newReservation + "\n");
-
-            } catch (NumberFormatException nfe) {
-                displayArea.append("Error: Please enter valid numeric values.\n");
-            } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
-                displayArea.append("Error: " + ex.getMessage() + "\n");
-            } catch (Exception ex) {
-                displayArea.append("Unexpected error: " + ex.getMessage() + "\n");
-            }
-        });
-
-        //search reservation by name button
-        searchButton.addActionListener(e -> {
-            try {
-                // Ask the user to input a guest name to search
-                String name = JOptionPane.showInputDialog(this, "Enter guest name to search:");
-
-                // Check if the input was canceled or left blank
-                if (name == null || name.trim().isEmpty()) {
-                    throw new IllegalArgumentException("Guest name cannot be empty.");
-                }
-
-                // Prepare a StringBuilder to gather matching results
-                StringBuilder results = new StringBuilder();
-                boolean found = false;
-
-                // Loop through all reservations
-                for (int i = 0; i < manager.getReservations().size(); i++) {
-                    Reservation res = manager.getReservations().get(i);
-
-                    // Compare the reservation's guest name to the search term (case-insensitive)
-                    if (res.getGuest().getName().toLowerCase().contains(name.toLowerCase())) {
-                        results.append("[").append(i).append("] ").append(res).append("\n\n");
-                        found = true;
-                    }
-                }
-
-                // Display results or an error message if none were found
-                if (found) {
-                    displayArea.append("Search results for \"" + name + "\":\n" + results);
-                } else {
-                    displayArea.append("No reservations found for guest: " + name + "\n");
-                }
-
-            } catch (IllegalArgumentException ex) {
-                displayArea.append("Error: " + ex.getMessage() + "\n");
-            } catch (Exception ex) {
-                displayArea.append("Unexpected error: " + ex.getMessage() + "\n");
-            }
-        });
-
-
-
-        setVisible(true);
-
+        setVisible(true); // Make the window visible
     }
 
+    // Main method to launch the GUI
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(HotelGUI::new);
+        SwingUtilities.invokeLater(HotelGUI::new); // Run the GUI on the Event Dispatch Thread
     }
 }
