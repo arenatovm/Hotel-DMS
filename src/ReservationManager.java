@@ -1,12 +1,21 @@
-/*
-Andres Vera
-CEN 3024 - Software Development I
-06/25/25
-ReservationManager.java
-
- This class allows adding, removing, updating, listing reservations, search a reservation by name, and load a file.
-it handles storing and managing reservations
-
+/**
+ * ReservationManager.java
+ *
+ * <p>This class handles the management of reservations in memory.
+ * It allows adding, removing, updating, listing, and searching reservations.
+ * It also supports loading reservation data from a file.</p>
+ *
+ * <p>This class uses an ArrayList to store Reservation objects and provides
+ * methods that simulate basic CRUD functionality for managing hotel bookings.</p>
+ *
+ * <p><b>Example Usage:</b></p>
+ * <pre>{@code
+ * ReservationManager manager = new ReservationManager();
+ * manager.addReservation(new Reservation(...));
+ * manager.listReservations();
+ * }</pre>
+ *
+ * @author Andres Vera
  */
 
 import java.io.BufferedReader;
@@ -15,20 +24,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class ReservationManager {
-    //List to store all reservations
+    /** A list that stores all reservation objects */
     private ArrayList<Reservation> reservations;
 
-    //Constructor to initializes the list
+    /**
+     * Constructs a new ReservationManager with an empty reservation list.
+     */
     public ReservationManager() {
         reservations = new ArrayList<>();
     }
 
-    //To add a new reservation to the list
+    /**
+     * Adds a new reservation to the list.
+     *
+     * @param reservation the Reservation object to be added
+     */
     public void addReservation(Reservation reservation) {
         reservations.add(reservation);
         System.out.println("Reservation added!");
     }
-    //To list all reservations in the system
+
+    /**
+     * Lists all reservations in the system to the console.
+     */
     public void listReservations() {
         if (reservations.isEmpty()) {
             System.out.println("No reservations found!");
@@ -38,7 +56,12 @@ public class ReservationManager {
             }
         }
     }
-    //To remove a reservation using its index
+
+    /**
+     * Removes a reservation by its index.
+     *
+     * @param index the index of the reservation to remove
+     */
     public void removeReservation(int index){
         if (index >= 0 && index < reservations.size()) {
             reservations.remove(index);
@@ -48,7 +71,12 @@ public class ReservationManager {
         }
     }
 
-    //To update a reservation using index of new data
+    /**
+     * Updates a reservation at the given index with a new reservation.
+     *
+     * @param index the index of the reservation to update
+     * @param newReservation the new Reservation object to replace the old one
+     */
     public void updateReservation(int index, Reservation newReservation) {
         if (index >= 0 && index < reservations.size()) {
             reservations.set(index, newReservation);
@@ -57,7 +85,14 @@ public class ReservationManager {
             System.out.println("Invalid Index!");
         }
     }
-    //to load a file
+
+    /**
+     * Loads reservations from a text file. Each line must be formatted as:
+     * name,email,roomNumber,roomType,nights
+     *
+     * @param filename the name of the file to load from
+     * @throws IOException if the file format is incorrect or cannot be read
+     */
     public void loadFromFile(String filename) throws IOException {
         // throws FileNotFoundException if file doesn't exist
         FileReader fr = new FileReader(filename);
@@ -93,11 +128,15 @@ public class ReservationManager {
     }
 
 
-    //new block, a custom action. To search a reservation by guest name
+    /**
+     * Searches for reservations by guest name. Prints matches to the console.
+     *
+     * @param name the partial or full name to search for
+     */
     public void searchReservationsByGuestName(String name) {
         boolean found = false;
         for (int i = 0; i < reservations.size(); i++) {
-            //o find a partial name
+            //to find a partial name
             if (reservations.get(i).getGuest().getName().toLowerCase().contains(name.toLowerCase())) {
                 System.out.println(i + ": " + reservations.get(i));
                 found = true;
@@ -108,7 +147,11 @@ public class ReservationManager {
         }
     }
 
-
+    /**
+     * Gets the list of all reservations.
+     *
+     * @return an ArrayList of Reservation objects
+     */
     public ArrayList<Reservation> getReservations() {
         return reservations;
     }
