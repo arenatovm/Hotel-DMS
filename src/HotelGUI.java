@@ -1,14 +1,28 @@
-/*
-Andres Vera
-CEN 3024 - Software Development I
-07/15/25
-HotelGUI.java
-
-This class provides a GUI for the Hotel DMS. It allows users to connect to a SQLite database,
-interact with the guest bookings using buttons and input fields, and perform all CRUD operations
-plus a custom search by name. Data is stored in a database, not in memory.
-*/
-
+/**
+ * <h2>HotelGUI.java</h2>
+ * <p><b>Author:</b> Andres Vera</p>
+ * <p><b>Course:</b> CEN 3024 - Software Development I</p>
+ * <p><b>Date:</b> 07/15/25</p>
+ *
+ * <p>This class defines the graphical user interface (GUI) for the Hotel Data Management System (DMS).</p>
+ * <p>It enables users to connect to a SQLite database and perform full CRUD operations (Create, Read, Update, Delete)
+ * through buttons and input fields. It also supports searching reservations by guest name.</p>
+ *
+ * <p><b>Primary features include:</b></p>
+ * <ul>
+ *   <li>Connecting to a SQLite database via file selection</li>
+ *   <li>Viewing all stored reservations</li>
+ *   <li>Adding new reservations with full input validation</li>
+ *   <li>Updating and deleting reservations by ID</li>
+ *   <li>Searching for reservations using guest names</li>
+ * </ul>
+ *
+ * <p><b>Dependencies:</b> Uses the {@link DatabaseManager} class to interact with the SQLite database.</p>
+ *
+ * <p><b>Output:</b> Displays status messages and reservation data in a scrollable text area.</p>
+ *
+ * @author Andres Vera
+ */
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -17,7 +31,16 @@ public class HotelGUI extends JFrame {
     private DatabaseManager dbManager;
     private JTextArea displayArea;
 
-    // Constructor for the GUI
+    /**
+     * Constructs the HotelGUI window, setting up layout, buttons, and event handling.
+     * <p>
+     * The GUI includes:
+     * <ul>
+     *   <li>Database connection file chooser</li>
+     *   <li>Buttons for View All, Add, Delete, Update, Search, Clear, Exit</li>
+     *   <li>Validation logic for inputs (name, email, room number, dates)</li>
+     * </ul>
+     */
     public HotelGUI() {
         // Initialize the database manager
         dbManager = new DatabaseManager();
@@ -287,7 +310,11 @@ public class HotelGUI extends JFrame {
         setVisible(true); // Make the window visible
     }
 
-    // Main method to launch the GUI
+    /**
+     * Launches the Hotel DMS GUI application on the Event Dispatch Thread.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(HotelGUI::new); // Run the GUI on the Event Dispatch Thread
     }
