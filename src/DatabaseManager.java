@@ -1,35 +1,59 @@
-/*
-Andres Vera
-CEN 3024 - Software Development I
-07/15/25
-DatabaseManager.java
+/**
+ * DatabaseManager.java
+ *
+ * <p>This class handles all database operations for the Hotel Data Management System (Hotel DMS)
+ * using SQLite. It allows connection to a user-specified SQLite database file and provides
+ * methods to create tables, and perform Create, Read, Update, Delete (CRUD) operations,
+ * as well as search functionality.</p>
+ *
+ * <p>Primary responsibilities:</p>
+ * <ul>
+ *     <li>Set and validate the database file path</li>
+ *     <li>Connect to the database using JDBC</li>
+ *     <li>Create the reservation table if it doesn't exist</li>
+ *     <li>Insert, update, delete, list, and search reservations</li>
+ * </ul>
+ *
+ * <p><b>Input:</b> File path to SQLite database and reservation fields from GUI</p>
+ * <p><b>Output:</b> Changes persisted to the database and data returned for GUI display</p>
+ *
+ * @author Andres Vera
+ */
 
-This class handles all database interactions for the Hotel DMS using SQLite.
-It supports connecting to a user-specified database file, creating the reservation table,
-and performing CRUD operations and search functionality.
-
-Input: Database path provided by the user via GUI
-Output: Data operations that persist in the SQLite database
-*/
-
-import java.sql.*;                      // For JDBC operations
-import java.util.ArrayList;             // For returning lists of reservation results
+import java.sql.*;
+import java.util.ArrayList;
 
 public class DatabaseManager {
-    private String dbPath;  // Stores the path to the SQLite database file selected by the user
+    /** Path to the SQLite database file set by the user */
+    private String dbPath;
 
-    // Sets the database path and ensures the table is created
+    /**
+     * Sets the database path and ensures the reservations table exists.
+     *
+     * @param path The full file path to the SQLite database
+     */
     public void setDatabasePath(String path) {
-        this.dbPath = path;                 // Save the file path
-        createTableIfNotExists();          // Make sure the reservations table exists
+        // Save the file path
+        this.dbPath = path;
+        // Make sure the reservations table exists
+        createTableIfNotExists();
     }
 
-    // Checks if the database path has been set (used to verify connection)
+    /**
+     * Checks if the database connection is available.
+     *
+     * @return {@code true} if the database path is set and not empty
+     */
     public boolean isConnected() {
         return dbPath != null && !dbPath.isEmpty(); // Return true only if dbPath is not null or empty
     }
 
-    // Establishes and returns a connection to the SQLite database
+    /**
+     * Connects to the SQLite database using the provided path.
+     *
+     * @return A valid {@link Connection} object
+     * @throws SQLException If the connection fails or path is not set
+     */
     private Connection connect() throws SQLException {
         if (!isConnected()) {
             throw new SQLException("Database path not set."); // Throw an error if no path set
@@ -37,7 +61,9 @@ public class DatabaseManager {
         return DriverManager.getConnection("jdbc:sqlite:" + dbPath); // Return SQLite connection
     }
 
-    // Creates the reservations table if it does not already exist
+    /**
+     * Creates the reservations table if it does not exist in the database.
+     */
     public void createTableIfNotExists() {
         if (!isConnected()) return; // Do nothing if not connected
 
@@ -63,7 +89,18 @@ public class DatabaseManager {
         }
     }
 
-    // Inserts a new reservation into the database
+    /**
+     * Inserts a new reservation into the database.
+     *
+     * @param name Guest name
+     * @param email Guest email
+     * @param roomNumber Room number
+     * @param roomType Room type
+     * @param rate Rate per night
+     * @param nights Number of nights
+     * @param checkIn Check-in date
+     * @param checkOut Check-out date
+     */
     public void addReservation(String name, String email, int roomNumber, String roomType, double rate, int nights, String checkIn, String checkOut) {
         if (!isConnected()) return; // Do nothing if not connected
 
@@ -88,7 +125,11 @@ public class DatabaseManager {
         }
     }
 
-    // Retrieves all reservations from the database
+    /**
+     * Retrieves all reservations from the database.
+     *
+     * @return A list of formatted reservation strings
+     */
     public ArrayList<String> getAllReservations() {
         ArrayList<String> reservations = new ArrayList<>(); // List to hold results
         if (!isConnected()) return reservations;            // Return empty list if not connected
@@ -113,7 +154,12 @@ public class DatabaseManager {
         return reservations; // Return list of reservations
     }
 
-    // Deletes a reservation by its ID
+    /**
+     * Deletes a reservation from the database by ID.
+     *
+     * @param id Reservation ID to delete
+     * @return {@code true} if deletion was successful, {@code false} otherwise
+     */
     public boolean deleteReservation(int id) {
         if (!isConnected()) return false; // Return false if not connected
 
@@ -129,7 +175,20 @@ public class DatabaseManager {
         }
     }
 
-    // Updates an existing reservation by its ID
+    /**
+     * Updates an existing reservation in the database by ID.
+     *
+     * @param id Reservation ID to update
+     * @param name Updated guest name
+     * @param email Updated guest email
+     * @param roomNumber Updated room number
+     * @param roomType Updated room type
+     * @param rate Updated rate
+     * @param nights Updated number of nights
+     * @param checkIn Updated check-in date
+     * @param checkOut Updated check-out date
+     * @return {@code true} if update was successful, {@code false} otherwise
+     */
     public boolean updateReservation(int id, String name, String email, int roomNumber, String roomType, double rate, int nights, String checkIn, String checkOut) {
         if (!isConnected()) return false; // Return false if not connected
 
@@ -158,7 +217,12 @@ public class DatabaseManager {
         }
     }
 
-    // Searches for reservations by guest name using a LIKE clause
+    /**
+     * Searches reservations by guest name using SQL LIKE operator.
+     *
+     * @param keyword Partial or full name to search
+     * @return A list of matching reservation strings
+     */
     public ArrayList<String> searchReservationsByName(String keyword) {
         ArrayList<String> matches = new ArrayList<>(); // List for matched results
         if (!isConnected()) return matches;           // Return empty list if not connected
@@ -182,7 +246,7 @@ public class DatabaseManager {
         } catch (SQLException e) {
             System.out.println("Error searching reservations: " + e.getMessage()); // Print error
         }
-
-        return matches; // Return matches
+        // Return matches
+        return matches;
     }
 }
