@@ -1,21 +1,41 @@
-/*
-Andres Vera
-CEN 3024 - Software Development I
-06/25/25
-HotelApp.java
-
-This is the main class that simulates the Hotel DMS
-it allows the user to interact via the console with basic options:
-Add, List, Update, Remove reservations, load a file, and Search a reservation by name.
-
-Input: User inputs guest name/email, room info, etc
-Output: Menu display and printed confirmations or errors
+/**
+ * HotelApp.java
+ * Andres Vera
+ * CEN 3024 - Software Development I
+ * 07/18/25
+ *
+ *
+ * <p>This is the main entry point for the Hotel Data Management System (Hotel DMS).
+ * It provides a console-based interface where users can interact with the reservation system.
+ * Users can add, update, remove, and list reservations, load them from a file, and search by guest name.</p>
+ *
+ * <p>Main features include:</p>
+ * <ul>
+ *     <li>Input validation for guest details and room information</li>
+ *     <li>Dynamic calculation of rates based on room type</li>
+ *     <li>Integration with file loading functionality</li>
+ *     <li>Search feature to locate reservations by guest name</li>
+ * </ul>
+ *
+ * <p><b>Input:</b> Console inputs from the user such as guest name, email, room number/type, and nights</p>
+ * <p><b>Output:</b> Printed confirmations, reservation summaries, and error messages in the console</p>
+ *
+ * @author Andres Vera
  */
 
 import java.io.IOException;
 import java.util.Scanner;
 
 public class HotelApp {
+    /**
+     * The main method that launches the Hotel DMS system.
+     * <p>
+     * Provides a menu for the user to manage hotel reservations including:
+     * adding, listing, updating, removing, loading from file, and searching.
+     * </p>
+     *
+     * @param args Command-line arguments (not used)
+     */
     public static void main(String[] args) {
         //to scan user inputs
         Scanner scanner = new Scanner(System.in);
@@ -51,8 +71,12 @@ public class HotelApp {
 
 
             switch (choice) {
+                /**
+                 * Adds a new reservation after validating guest name, email,
+                 * room number, room type, and number of nights.
+                 */
                 case 1:
-                    //to add reservation
+
                     String name;
                     do {
                         System.out.println("Enter guest name (letters and spaces only): ");
@@ -137,12 +161,16 @@ public class HotelApp {
                     //to add reservation to the manager
                     manager.addReservation(reservation);
                     break;
-
+                /**
+                 * Lists all existing reservations.
+                 */
                 case 2:
                     //to list reservations
                     manager.listReservations();
                     break;
-
+                /**
+                 * Updates an existing reservation after validating index and new inputs.
+                 */
                 case 3:
                     // Validate reservation index
                     int updateIndex = -1;
@@ -236,7 +264,9 @@ public class HotelApp {
                     System.out.println("Reservation updated successfully.");
                     break;
 
-
+                /**
+                 * Removes a reservation at a specified index after validation.
+                 */
                 case 4:
                     // Validate reservation index to remove
                     int removeIndex = -1;
@@ -259,7 +289,9 @@ public class HotelApp {
                     manager.removeReservation(removeIndex);
                     System.out.println("Reservation removed successfully.");
                     break;
-                //case block to load a file
+                /**
+                 * Loads reservations from an external file.
+                 */
                 case 5:
                     System.out.println("Enter the file path to load reservations:");
                     String filePath = scanner.nextLine().trim();
@@ -274,13 +306,17 @@ public class HotelApp {
 
                     break;
 
-                //new case block for a custom action. to search a reservation by a guest name
+                /**
+                 * Searches reservations by guest name.
+                 */
                 case 6:
                     System.out.print("Enter guest name to search: ");
                     String searchName = scanner.nextLine().trim();
                     manager.searchReservationsByGuestName(searchName);
                     break;
-
+                /**
+                 * Exits the program.
+                 */
                 case 7:
                     //exit
                     running = false;
@@ -288,7 +324,9 @@ public class HotelApp {
                     break;
 
 
-
+                /**
+                 * Handles invalid menu option.
+                 */
                 default:
                     System.out.println("Invalid option! Try again please.");
             }
