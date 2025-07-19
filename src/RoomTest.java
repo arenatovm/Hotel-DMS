@@ -1,18 +1,24 @@
-/*
-Andres Vera
-CEN 3024 - Software Development I
-06/25/25
-RoomTest.java
-
-This class tests the functionality of toString method in the Room class.
+/**
+ * RoomTest.java
+ *
+ * <p>This test class verifies the behavior of the {@link Room} class, specifically the correctness of
+ * the overridden {@code toString()} method.</p>
+ *
+ * <p>It uses JUnit 5 framework to validate expected and unexpected outputs.</p>
+ *
+ * @author Andres Vera
  */
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class RoomTest {
-    // Variable to store a Room object used in each test
+    /** A Room object used for test cases */
     private Room room;
 
+    /**
+     * Tests the output of the {@code toString()} method in the Room class.
+     * Validates both correct output and a case that should fail to match.
+     */
     @org.junit.jupiter.api.Test
     void testToString() {
         //create room object
