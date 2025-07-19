@@ -1,21 +1,32 @@
-/*
-Andres Vera
-CEN 3024 - Software Development I
-06/25/25
-ReservationTest.java
-
-This class tests the functionality of total calculation and  toString method in the Reservation class.
+/**
+ * ReservationTest.java
+ *
+ * <p>This class contains unit tests for the {@link Reservation} class. It verifies the
+ * correctness of the total cost calculation and the output of the {@code toString()} method.</p>
+ *
+ * <p>It uses the JUnit 5 framework to test expected behavior through assertions.</p>
+ *
+ * <p><b>Tested Methods:</b><br>
+ * {@link Reservation#calculateTotal()}<br>
+ * {@link Reservation#toString()}</p>
+ *
+ * @author Andres Vera
  */
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReservationTest {
-    // Variables used across tests
+    /** Test guest used for reservation */
     private Guest guest;
+    /** Test room used for reservation */
     private Room room;
+    /** Reservation object used in tests */
     private Reservation reservation;
 
-
+    /**
+     * Tests the total cost calculation of a reservation.
+     * Validates that the result is correct and does not match an incorrect value.
+     */
     @org.junit.jupiter.api.Test
     void calculateTotal() {
         //test data
@@ -29,6 +40,10 @@ class ReservationTest {
         assertNotEquals(300.0, reservation.calculateTotal());
     }
 
+    /**
+     * Tests the string output of a reservation using toString().
+     * Verifies that the output matches the expected format.
+     */
     @org.junit.jupiter.api.Test
     void testToString() {
         //test data
